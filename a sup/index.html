@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Happy 3rd Anniversary</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(to right, #ffdde1, #ee9ca7);
+      font-family: 'Courier New', monospace;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      color: #fff;
+      flex-direction: column;
+      overflow-x: hidden;
+      text-align: center;
+    }
+
+    .letter-container {
+      background-color: rgba(255, 255, 255, 0.1);
+      padding: 30px 20px;
+      border-radius: 20px;
+      max-width: 90%;
+      width: 600px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.3);
+      backdrop-filter: blur(10px);
+      margin-bottom: 20px;
+    }
+
+    #typewriter {
+      font-size: 1.1rem;
+      white-space: pre-wrap;
+      overflow-wrap: break-word;
+    }
+
+    .btn {
+      background-color: white;
+      color: #ee7a97;
+      border: none;
+      padding: 12px 20px;
+      font-size: 1rem;
+      border-radius: 30px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      margin: 10px;
+    }
+
+    .btn:hover {
+      background-color: #ffe5ec;
+      color: #d6336c;
+    }
+
+    .final-message, .video-reveal, .question-box {
+      display: none;
+      font-size: 1.2rem;
+      margin-top: 20px;
+      animation: fadeIn 2s forwards;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .hearts {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    .heart {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background: red;
+      transform: rotate(45deg);
+      animation: float 6s infinite ease-in;
+    }
+
+    .heart::before,
+    .heart::after {
+      content: '';
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background: red;
+      border-radius: 50%;
+    }
+
+    .heart::before {
+      top: -10px;
+      left: 0;
+    }
+
+    .heart::after {
+      left: -10px;
+      top: 0;
+    }
+
+    @keyframes float {
+      0% { transform: translateY(100vh) rotate(45deg); opacity: 1; }
+      100% { transform: translateY(-10vh) rotate(45deg); opacity: 0; }
+    }
+
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+      z-index: 100;
+    }
+
+    video {
+      width: 100%;
+      max-width: 500px;
+      height: auto;
+      border-radius: 15px;
+      margin-top: 15px;
+    }
+
+    .question-box {
+      position: relative;
+      height: 100px; /* space for moving button */
+    }
+
+    #yesBtn {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    #noBtn {
+      position: relative;
+      z-index: 1;
+      margin-top: 70px;
+    }
+
+    @media (max-width: 480px) {
+      .letter-container {
+        padding: 20px 15px;
+      }
+
+      #yesBtn {
+        position: absolute; /* KEEP it absolute on mobile too */
+      }
+
+      .question-box {
+        height: 140px; /* give more space for movement */
+      }
+    }
+    </style>
+
+</head>
+<body>
+  <div class="letter-container">
+    <div id="typewriter"></div>
+  </div>
+
+  <button class="btn" id="revealBtn" style="display:none;">Click here for a surprise</button>
+
+  <div class="final-message" id="finalMessage">
+    You are the best thing that ever happened to me.<br>
+    Happy 3rd Anniversary, my baby.
+    <br><br>
+    <div class="question-box" id="questionBox">
+      Do you want to see the surprise?<br><br>
+      <button class="btn" id="yesBtn">Yes</button>
+      <button class="btn" id="noBtn">No</button>
+    </div>
+  </div>
+
+  <div class="video-reveal" id="videoReveal">
+    Here's our special memory... 💞<br><br>
+    <video autoplay muted controls>
+      <source src="vid.mov" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+  </div>
+
+  <canvas id="confettiCanvas"></canvas>
+  <div class="hearts"></div>
+
+  <script>
+    const message = `Happy 3rd Anniversary, my baby 
+
+Every moment with you is a gift.
+Thank you for staying, supporting, and loving me endlessly.
+You make my world brighter just by being in it.
+And inspired to do more than i can do.
+
+Here's to more memories, more laughter, more love
+Together, always hehe.
+
+Iloveyousosososomuch , forever and ever always.`;
+
+    const typewriter = document.getElementById("typewriter");
+    const revealBtn = document.getElementById("revealBtn");
+    const finalMessage = document.getElementById("finalMessage");
+    const yesBtn = document.getElementById("yesBtn");
+    const noBtn = document.getElementById("noBtn");
+    const videoReveal = document.getElementById("videoReveal");
+
+    let index = 0;
+    let yesClickCount = 0;
+
+    function typeNextChar() {
+      if (index < message.length) {
+        typewriter.textContent += message.charAt(index);
+        index++;
+        setTimeout(typeNextChar, 50);
+      } else {
+        revealBtn.style.display = "inline-block";
+      }
+    }
+
+    typeNextChar();
+
+    revealBtn.addEventListener("click", () => {
+      finalMessage.style.display = "block";
+      launchConfetti();
+      document.getElementById("questionBox").style.display = "block";
+    });
+
+    yesBtn.addEventListener("click", () => {
+      yesClickCount++;
+      if (yesClickCount === 1) {
+        yesBtn.style.left = "20%";
+      } else if (yesClickCount === 2) {
+        yesBtn.style.left = "75%";
+      } else if (yesClickCount === 3) {
+        videoReveal.style.display = "block";
+        yesBtn.style.display = "none";
+        noBtn.style.display = "none";
+      }
+    });
+
+    noBtn.addEventListener("click", () => {
+      noBtn.textContent = "Aww, please say yes 💔";
+    });
+
+ 
+    const canvas = document.getElementById("confettiCanvas");
+    const ctx = canvas.getContext("2d");
+    let confetti = [];
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    function launchConfetti() {
+      confetti = [];
+      for (let i = 0; i < 150; i++) {
+        confetti.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height - canvas.height,
+          r: Math.random() * 6 + 4,
+          d: Math.random() * 30 + 10,
+          color: `hsl(${Math.random() * 360}, 100%, 70%)`,
+          tilt: Math.random() * 10 - 10,
+          tiltAngle: 0,
+        });
+      }
+      drawConfetti();
+    }
+
+    function drawConfetti() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      confetti.forEach(c => {
+        ctx.beginPath();
+        ctx.lineWidth = c.r;
+        ctx.strokeStyle = c.color;
+        ctx.moveTo(c.x + c.tilt, c.y);
+        ctx.lineTo(c.x + c.tilt + c.r / 2, c.y + c.tilt + c.r);
+        ctx.stroke();
+      });
+      updateConfetti();
+    }
+
+    function updateConfetti() {
+      confetti.forEach(c => {
+        c.y += Math.cos(c.d / 10) + 2;
+        c.tiltAngle += 0.1;
+        c.tilt = Math.sin(c.tiltAngle) * 15;
+      });
+      confetti = confetti.filter(c => c.y < canvas.height + 20);
+      if (confetti.length > 0) {
+        requestAnimationFrame(drawConfetti);
+      }
+    }
+
+
+    const heartsContainer = document.querySelector(".hearts");
+    for (let i = 0; i < 30; i++) {
+      const heart = document.createElement("div");
+      heart.classList.add("heart");
+      heart.style.left = Math.random() * 100 + "vw";
+      heart.style.animationDuration = (4 + Math.random() * 3) + "s";
+      heartsContainer.appendChild(heart);
+    }
+  </script>
+</body>
+</html>
